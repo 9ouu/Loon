@@ -1,8 +1,7 @@
 #!name = Telegram DC
 #!desc = 电报数据中心分流。
-#!author = RuCu6[https://github.com/RuCu6]
-#!icon = https://raw.githubusercontent.com/RuCu6/Loon/main/Icons/app/telegram.png
-#!date = 2024-04-29 23:55
+#!icon = https://raw.githubusercontent.com/9ouu/Loon/main/Icons/app/telegram.png
+#!date = 2024-04-29 23:55 for RuCu6
 
 [Rule]
 IP-ASN, 62014, 狮城节点, no-resolve
