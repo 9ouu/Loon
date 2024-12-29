@@ -1,13 +1,18 @@
 # for https://github.com/blackmatrix7/ios_rule_script
 # > YouTube
+DOMAIN,music.youtube.com
+DOMAIN,youtubei.googleapis.com
+DOMAIN,yt3.ggpht.com
 DOMAIN-SUFFIX,ggpht.cn
 DOMAIN-SUFFIX,ggpht.com
 DOMAIN-SUFFIX,googlevideo.com
 DOMAIN-SUFFIX,gvt1.com
 DOMAIN-SUFFIX,gvt2.com
 DOMAIN-SUFFIX,video.google.com
+DOMAIN-SUFFIX,wide-youtube.l.google.com
 DOMAIN-SUFFIX,withyoutube.com
 DOMAIN-SUFFIX,youtu.be
+DOMAIN-SUFFIX,youtube
 DOMAIN-SUFFIX,youtube-nocookie.com
 DOMAIN-SUFFIX,youtube-ui.l.google.com
 DOMAIN-SUFFIX,youtube.ae
@@ -177,10 +182,17 @@ DOMAIN-SUFFIX,youtubekids.com
 DOMAIN-SUFFIX,youtubemobilesupport.com
 DOMAIN-SUFFIX,yt.be
 DOMAIN-SUFFIX,ytimg.com
+DOMAIN-WILDCARD,youtube.*
+DOMAIN-WILDCARD,youtube.*.*
+DOMAIN-WILDCARD,youtube.com.*
 DOMAIN-KEYWORD,youtube
+USER-AGENT,*YouTubeMusic*
+USER-AGENT,*com.google.ios.youtubemusic*
 USER-AGENT,*youtube*
 USER-AGENT,YouTube*
+USER-AGENT,YouTubeMusic*
 USER-AGENT,com.google.ios.youtube*
+USER-AGENT,com.google.ios.youtubemusic*
 IP-CIDR,172.110.32.0/21,no-resolve
 IP-CIDR,216.73.80.0/20,no-resolve
 IP-CIDR6,2620:120:e000::/40,no-resolve
@@ -193,8 +205,13 @@ USER-AGENT,YouTubeMusic*
 USER-AGENT,com.google.ios.youtubemusic*
 
 # > TikTok
+DOMAIN,lf16-effectcdn.byteeffecttos-g.com
+DOMAIN,lf16-pkgcdn.pitaya-clientai.com
 DOMAIN,p16-tiktokcdn-com.akamaized.net
+DOMAIN-SUFFIX,bytedapm.com
+DOMAIN-SUFFIX,bytegecko-i18n.com
 DOMAIN-SUFFIX,byteoversea.com
+DOMAIN-SUFFIX,capcut.com
 DOMAIN-SUFFIX,ibytedtos.com
 DOMAIN-SUFFIX,ibyteimg.com
 DOMAIN-SUFFIX,ipstatp.com
@@ -205,17 +222,25 @@ DOMAIN-SUFFIX,sgpstatp.com
 DOMAIN-SUFFIX,snssdk.com
 DOMAIN-SUFFIX,tik-tokapi.com
 DOMAIN-SUFFIX,tiktok.com
+DOMAIN-SUFFIX,tiktokcdn-us.com
 DOMAIN-SUFFIX,tiktokcdn.com
+DOMAIN-SUFFIX,tiktokd.net
+DOMAIN-SUFFIX,tiktokd.org
+DOMAIN-SUFFIX,tiktokmusic.app
 DOMAIN-SUFFIX,tiktokv.com
+DOMAIN-SUFFIX,tiktokv.us
+DOMAIN-SUFFIX,ttwebview.com
 DOMAIN-KEYWORD,musical.ly
 DOMAIN-KEYWORD,tiktok
 USER-AGENT,TikTok*
+
 
 # > GoogleVoice
 DOMAIN,lens.l.google.com
 
 # > Twitter
 DOMAIN-SUFFIX,ads-twitter.com
+DOMAIN-SUFFIX,cms-twdigitalassets.com
 DOMAIN-SUFFIX,periscope.tv
 DOMAIN-SUFFIX,pscp.tv
 DOMAIN-SUFFIX,t.co
@@ -225,18 +250,22 @@ DOMAIN-SUFFIX,twimg.co
 DOMAIN-SUFFIX,twimg.com
 DOMAIN-SUFFIX,twimg.org
 DOMAIN-SUFFIX,twitpic.com
+DOMAIN-SUFFIX,twitter.biz
 DOMAIN-SUFFIX,twitter.com
 DOMAIN-SUFFIX,twitter.jp
+DOMAIN-SUFFIX,twittercommunity.com
+DOMAIN-SUFFIX,twitterflightschool.com
 DOMAIN-SUFFIX,twitterinc.com
 DOMAIN-SUFFIX,twitteroauth.com
 DOMAIN-SUFFIX,twitterstat.us
 DOMAIN-SUFFIX,twtrdns.net
 DOMAIN-SUFFIX,twttr.com
+DOMAIN-SUFFIX,twttr.net
+DOMAIN-SUFFIX,twvid.com
 DOMAIN-SUFFIX,vine.co
+DOMAIN-SUFFIX,x.com
 DOMAIN-KEYWORD,twitter
-IP-CIDR,104.244.42.0/21,no-resolve
 IP-CIDR,192.133.76.0/22,no-resolve
-IP-CIDR,199.16.156.0/22,no-resolve
 IP-CIDR,199.59.148.0/22,no-resolve
 IP-CIDR,199.96.56.0/21,no-resolve
 IP-CIDR,202.160.128.0/22,no-resolve
