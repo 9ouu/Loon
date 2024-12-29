@@ -1,4 +1,5 @@
 #!name = what
+#!desc= what
 #!icon = https://raw.githubusercontent.com/9ouu/Loon/main/Icons/server/Moon.png
 
 [Rewrite]
