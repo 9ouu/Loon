@@ -1,6 +1,5 @@
 #!name = what
-#!icon = https://github.com/9ouu/Loon/blob/main/Icons/server/Moon.png
-# by 9ouu
+#!icon = https://raw.githubusercontent.com/9ouu/Loon/main/Icons/server/Moon.png
 
 [Rewrite]
 ^https://kelee.one header-replace-regex user-agent .* Loon/787\x20CFNetwork/1494.0.7\x20Darwin/23.4.0
