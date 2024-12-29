@@ -4,7 +4,7 @@
 
 [Rewrite]
 ^https?:\/\/.*\.kelee\.one header-replace-regex user-agent .* Loon/787\x20CFNetwork/1494.0.7\x20Darwin/23.4.0
-^https://kelee.one header-replace-regex user-agent .* Loon/787\x20CFNetwork/1494.0.7\x20Darwin/23.4.0
+^https?:\/\/.*\.kelee\.one header-replace-regex User-Agent .* Loon/787\x20CFNetwork/1494.0.7\x20Darwin/23.4.0
 
 [MitM]
 hostname=*.kelee.one,kelee.one
