@@ -2,7 +2,7 @@
 #!desc= 更换 User-Agent 以提升体验
 #!icon = https://raw.githubusercontent.com/9ouu/Loon/main/Icons/server/Moon.png
 
-[URL Rewrite]
+[Rewrite]
 ^https?:\/\/.*\.kelee\.one header-replace-regex user-agent .* "Loon/787 CFNetwork/1494.0.7 Darwin/23.4.0"
 
 [MitM]
