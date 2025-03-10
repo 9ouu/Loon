@@ -1,100 +1,68 @@
 #!name = 哔哩哔哩
-#!desc = 没有广告的哔哩哔哩更值得干杯。
+#!desc = 没有广告的哔哩哔哩更值得干杯。过滤哔哩哔哩广告、移除青少年模式弹窗和交互式弹幕、移除无用功能和链接跟踪参数。此插件仅建议iOS 15以上设备使用，且必须启用MitM-over-HTTP/2功能。
 #!author = Maasea[https://github.com/Maasea], RuCu6[https://github.com/RuCu6], kokoryh[https://github.com/kokoryh], 可莉🅥[https://gitlab.com/lodepuly/vpn_tool]
 #!icon = https://raw.githubusercontent.com/9ouu/Loon/main/Icons/app/bilibili.png
-#!date = 2024-10-15 22:45 for RuCu6
+#!system=iOS,iPadOS
+#!system_version=15
+#!loon_version=3.2.4(787)
+#!date = 2024-10-15 22:45 for RuCu6 ｜ 2025-03-10 00:43:08 for 可莉
 
-[General]
-force-http-engine-hosts = :8000
+
+[Argument]
+showUpList=select,"auto","true","false",tag=[动态]中[最常访问]的显示方式,desc=auto：仅当列表中存在直播状态时显示；true：始终显示；false：始终隐藏。
 
 [Rule]
+# 备用域名
+DOMAIN,api.biliapi.com,REJECT
+DOMAIN,api.biliapi.net,REJECT
+DOMAIN,app.biliapi.com,REJECT
+DOMAIN,app.biliapi.net,REJECT
+
 # 开屏广告
-URL-REGEX, ^http:\/\/upos-sz-static\.bilivideo\.com\/ssaxcode\/\w{2}\/\w{2}\/\w{32}-1-SPLASH, REJECT-DICT
-URL-REGEX, ^http:\/\/[\d\.]+:8000\/v1\/resource\/\w{32}-1-SPLASH, REJECT-DICT
+URL-REGEX,"^http:\/\/upos-sz-static\.bilivideo\.com\/ssaxcode\/\w{2}\/\w{2}\/\w{32}-1-SPLASH",REJECT-DICT
+URL-REGEX,"^http:\/\/[\d\.]+:8000\/v1\/resource\/\w{32}-1-SPLASH",REJECT-DICT
 
 [Rewrite]
-# 开屏广告
-^https:\/\/(?:api\.bilibili\.com\/x\/mengqi\/v1\/resource|app\.bilibili\.com\/x\/resource\/peak\/download) reject-dict
+# 移除开屏广告
+^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|show|event\/list2)\? response-body-json-jq '.data |= with_entries(if .key | IN("show", "event_list") then .value = [] else . end)'
 
-# 满意度调研
-^https:\/\/api\.bilibili\.com\/x\/v2\/dm\/qoe\/show\? reject-dict
+# 首页标签页控制、精简底栏
+^https:\/\/app\.bilibili\.com\/x\/resource\/show\/tab\/v2\? response-body-json-jq jq-path="https://kelee.one/Resource/JQLang/Bilibili/tab_Bilibili_remove_ads.jq"
 
-# 大会员广告
-^https:\/\/api\.bilibili\.com\/x\/vip\/ads\/materials\? reject-dict
+# 移除首页推荐广告
+^https:\/\/app\.bilibili\.com\/x\/v2\/feed\/index\? response-body-json-jq 'if .data.items then .data.items |= map(select((.banner_item == null) and (.ad_info == null) and (.card_goto == "av") and (.card_type | IN("small_cover_v2", "large_cover_single_v9", "large_cover_v1")))) end'
 
-# 直播广告
+# 播放页开通会员的横幅
+^https:\/\/api\.bilibili\.com\/pgc\/activity\/deliver\/material\/receive\? mock-response-body data-type=text status-code=200 data="{"code":0,"data":{"closeType":"close_win","container":[],"showTime":""},"message":"success"}"
+^https:\/\/api\.bilibili\.com\/pgc\/view\/v2\/app\/season\? response-body-json-jq 'del(.data.payment)'
+
+# 移除观影页广告
+^https:\/\/api\.bilibili\.com\/pgc\/page\/(?:bangumi|cinema\/tab)\? response-body-json-jq '.result.modules |= if . then map(if (.style | startswith("tip")) or (.module_id | IN(241, 1283, 1441, 1284)) then .items = [] elif .style | startswith("banner") then .items |= if . then map(select(.link | contains("play"))) else [] end elif .style | startswith("function") then .items |= if . then map(select(.blink | startswith("bilibili"))) else [] end end) end'
+
+# 移除竖屏视频广告
+^https:\/\/app\.bilibili\.com\/x\/v2\/feed\/index\/story\? response-body-json-jq 'if .data.items then .data.items |= map(select((.ad_info == null) and (.card_goto | startswith("ad") | not)) | del(.story_cart_icon)) end'
+
+# 移除大会员广告、移除右上角活动入口
+^https:\/\/ap[ip]\.bilibili\.com\/x\/(?:resource\/(?:top\/activity|patch\/tab)|v2\/search\/square|vip\/ads\/materials)\? mock-response-body data-type=text status-code=200 data="{"code":-404,"message":"-404","ttl":1,"data":null}"
+
+# 移除直播广告
 ^https:\/\/api\.live\.bilibili\.com\/xlive\/e-commerce-interface\/v1\/ecommerce-user\/get_shopping_info\? reject-dict
+
+# 移除直播间广告
+^https:\/\/api\.live\.bilibili\.com\/xlive\/(?:app-interface\/v2\/index\/feed|app-room\/v1\/index\/getInfoBy(?:Room|User))\? response-body-json-jq '.data |= (del(.play_together_info, .play_together_info_v2, .activity_banner_info) | if .function_card then .function_card[] = null end | if .new_tab_info.outer_list then .new_tab_info.outer_list |= map(select(.biz_id != 33)) end | if .card_list then .card_list |= map(select(.card_type != "banner_v2")) end | reduce ([["show_reserve_status"], false], [["reserve_info", "show_reserve_status"], false], [["shopping_info", "is_show"], 0]) as [$path, $value] (.; if getpath($path) then setpath($path; $value) end))'
 
 # 移除皮肤推送
 ^https:\/\/app\.bilibili\.com\/x\/resource\/show\/skin\? response-body-json-del data.common_equip
 
-# 移除右上角活动入口
-^https:\/\/app\.bilibili\.com\/x\/resource\/top\/activity\? mock-response-body data-type=json status-code=200 data="{ "code": -404, "message": "啥都木有", "ttl": 1, "data": null }"
+# 精简我的页面
+^https:\/\/app\.bilibili\.com\/x\/v2\/account\/mine(?:\/ipad)?\? response-body-json-jq jq-path="https://kelee.one/Resource/JQLang/Bilibili/mine_Bilibili_remove_ads.jq"
 
-
-# 屏蔽默认搜索框关键词
-^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.app\.interface\.v1\.Search\/DefaultWords reject-dict
-
-# 流量卡推荐
-^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.app\.view\.v1\.View\/TFInfo url reject-dict
-
-# IP请求、地理位置请求 //api.bilibili.com
-^https:\/\/app\.bilibili\.com\/x\/resource\/ip reject-dict
-^https:\/\/api\.bilibili\.com\/x\/web-interface\/zone\?jsonp reject-dict
-
-# 移除视频链接跟踪参数
-(^https:\/\/(?:www|m)\.bilibili\.com\/video\/(?:BV\w{10}|av\d{9}))(\/?\?.*) 302 $1
-
-# 移除直播间链接跟踪参数
-(^https:\/\/live\.bilibili\.com\/\d+)(\/?\?.*) 302 $1
+# 非会员开启会员专属清晰度
+^https:\/\/app\.bilibili\.com\/x\/v2\/account\/myinfo\? response-body-json-jq '.data.vip |= if . != null and .status == 0 then . + {status:1,type:2,vip_pay_type:1,due_date:4669824160000} else . end'
 
 [Script]
-# 移除动态页面广告
-http-response ^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.app\.dynamic\.v2\.Dynamic\/DynAll$ script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/protoC.js, requires-body = true, binary-body-mode = true, tag = 移除动态页面广告
+# Proto处理
+http-response ^https:\/\/(?:grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.(?:app\.(?:interface\.v1\.(?:Teenagers\/ModeStatus|Search\/DefaultWords)|show\.v1\.Popular\/Index|dynamic\.v2\.Dynamic\/DynAll|view(?:unite)?\.v1\.View\/(?:View|ViewProgress|TFInfo|RelatesFeed)|playurl\.v1\.PlayURL\/PlayView|playerunite\.v1\.Player\/PlayViewUnite)|polymer\.app\.search\.v1\.Search\/SearchAll|community\.service\.dm\.v1\.DM\/DmView|main\.community\.reply\.v1\.Reply\/MainList|pgc\.gateway\.player\.v2\.PlayURL\/PlayView)$ script-path=https://kelee.one/Resource/Script/Bilibili/Bilibili_proto_kokoryh.js,requires-body=true,binary-body-mode=true,tag=Proto处理,argument=[{showUpList}]
 
-# 移除青少年模式弹窗
-http-response ^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.app\.interface\.v1\.Teenagers\/ModeStatus script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/protoC.js, requires-body = true, binary-body-mode = true, tag = 移除青少年模式弹窗
-
-# 移除热门话题
-http-response ^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.app\.show\.v1\.Popular\/Index$ script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/protoC.js, requires-body = true, binary-body-mode = true, tag = 移除热门话题
-
-# 移除播放页面视频列表广告
-http-response ^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.app\.(?:view|viewunite)\.v1\.View\/(?:View|ViewProgress)$ script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/protoC.js, requires-body = true, binary-body-mode = true, tag = 移除播放页面视频列表广告
-
-# 会员特效弹幕处理
-http-response ^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.community\.service\.dm\.v1\.DM\/DmSegMobile script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/protoC.js, requires-body = true, binary-body-mode = true, tag = 会员特效弹幕处理
-
-# 移除交互式弹幕
-http-response ^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.community\.service\.dm\.v1\.DM\/DmView script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/protoC.js, requires-body = true, binary-body-mode = true, tag = 移除交互式弹幕
-
-# 移除评论区广告
-http-response ^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.main\.community\.reply\.v1\.Reply\/MainList script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/protoC.js, requires-body = true, binary-body-mode = true, tag = 移除评论区广告
-
-# 移除搜索结果广告
-http-response ^https:\/\/(?:app\.bilibili\.com|grpc\.biliapi\.net)\/bilibili\.polymer\.app\.search\.v1\.Search\/SearchAll$ script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/protoC.js, requires-body = true, binary-body-mode = true, tag = 移除搜索结果广告
-
-# 上部为Proto处理,下部为JSON配置处理
-
-# 移除开屏广告
-http-response ^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:brand\/list|event\/list2|list|show) script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/json.js, requires-body = true, tag = 移除开屏广告
-
-# 移除首页推荐广告
-http-response ^https:\/\/app\.bilibili\.com\/x\/v2\/feed\/index(\/story)?\? script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/json.js, requires-body = true, tag = 移除首页推荐广告
-
-# 精简首页顶部标签
-http-response ^https:\/\/app\.bilibili\.com\/x\/resource\/show\/tab\/v2\? script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/json.js, requires-body = true, tag = 精简首页顶部标签
-
-# 移除热搜广告
-http-response ^https:\/\/app\.bilibili\.com\/x\/v2\/search\/square\? script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/json.js, requires-body = true, tag = 移除热搜广告
-
-# 移除观影页广告
-http-response ^https:\/\/api\.bilibili\.com\/pgc\/page\/(?:bangumi|cinema\/tab) script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/json.js, requires-body = true, tag = 移除观影页广告
-
-# 移除直播间广告
-http-response ^https:\/\/api\.live\.bilibili\.com\/xlive\/app-room\/v1\/index\/getInfoByRoom\? script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/json.js, requires-body = true, tag = 移除直播间广告
-
-# 精简我的页面
-http-response ^https:\/\/app\.bilibili\.com\/x\/v2\/account\/(?:mine(\/ipad)?|myinfo) script-path = https://raw.githubusercontent.com/9ouu/Loon/main/Scripts/bilibili/json.js, requires-body = true, tag = 精简我的页面
-
-[MITM]
-hostname = ap*.bilibili.com, grpc.biliapi.net, www.bilibili.com, m.bilibili.com, *live.bilibili.com
+[MitM]
+hostname=grpc.biliapi.net,app.bilibili.com,api.bilibili.com,api.live.bilibili.com
