@@ -7,4 +7,4 @@
 hostname = api.m.jd.com
 
 
-http-request ^https?://api\.m\.jd\.com/client\.action, script-path=https://您存放脚本的URL/getJDCookie.js, requires-body=false, timeout=10, tag=获取京东Cookie
+http-request ^https?://api\.m\.jd\.com/client\.action, script-path=https://raw.githubusercontent.com/9ouu/Loon/refs/heads/main/Scripts/JD/getJDCookie.js, requires-body=false, timeout=10, tag=获取京东Cookie
