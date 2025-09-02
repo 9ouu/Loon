@@ -1,0 +1,10 @@
+#!name=京东Cookie获取
+#!desc=当您打开京东App时，此插件会自动捕获并以通知形式显示您的Cookie信息（pt_key和pt_pin）。
+#!author=YourWriter
+#!homepage=https://github.com/Loon0x00
+
+
+hostname = api.m.jd.com
+
+
+http-request ^https?://api\.m\.jd\.com/client\.action, script-path=https://您存放脚本的URL/getJDCookie.js, requires-body=false, timeout=10, tag=获取京东Cookie
