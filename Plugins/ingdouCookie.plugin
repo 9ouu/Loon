@@ -1,0 +1,10 @@
+#!name=京东京豆Cookie获取
+#!desc=当您访问京东京豆页面时，此插件会自动捕获并以通知形式显示您的Cookie信息。
+#!author=9ouu
+#!homepage=https://github.com/Loon0x00
+
+[Script]
+http-request ^https?://my\.m\.jd\.com/jingdou/index\.html, script-path=https://raw.githubusercontent.com/9ouu/Loon/refs/heads/main/Scripts/JD/getJingdouCookie.js, requires-body=false, tag=获取京东京豆Cookie
+
+[MITM]
+hostname = my.m.jd.com
